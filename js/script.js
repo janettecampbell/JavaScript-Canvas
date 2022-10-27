@@ -53,8 +53,6 @@ function Circle(x, y, dx, dy, radius, color) {
   this.draw = function () {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-    ctx.strokeStyle = "blue";
-    ctx.stroke();
     ctx.fillStyle = color;
     ctx.fill();
   };
@@ -78,15 +76,62 @@ function Circle(x, y, dx, dy, radius, color) {
 let circleArray = [];
 
 for (let i = 0; i < 100; i++) {
-  const radius = 30;
-  let x = Math.random() * (window.innerWidth - radius * 2) + radius;
-  let y = Math.random() * (window.innerHeight - radius * 2) + radius;
-  let dx = Math.random() - 0.5 * 8;
-  let dy = Math.random() - 0.5 * 8;
+  const radius = Math.random() * (50 - 5) + 5;
+  const x = Math.random() * (window.innerWidth - radius * 2) + radius;
+  const y = Math.random() * (window.innerHeight - radius * 2) + radius;
+  const dx = (Math.random() - 0.5) * 8;
+  const dy = (Math.random() - 0.5) * 8;
   const randomColor = Math.floor(Math.random() * 16777215).toString(16);
   const color = "#" + randomColor;
 
   circleArray.push(new Circle(x, y, dx, dy, radius, color));
+}
+
+function Rectangle(x, y, wx, hy, dx, dy, color) {
+  this.x = x;
+  this.y = y;
+  this.wx = wx;
+  this.hy = hy;
+  this.dx = dx;
+  this.dy = dy;
+  this.color = color;
+
+  this.draw = function () {
+    ctx.beginPath();
+
+    ctx.fillStyle = color;
+    ctx.fillRect(this.x, this.y, this.wx, this.hy);
+  };
+
+  this.update = function () {
+    if (this.x + this.wx > innerWidth || this.x < 0) {
+      this.dx = -this.dx;
+    }
+
+    if (this.y + this.hy > innerHeight || this.y < 0) {
+      this.dy = -this.dy;
+    }
+
+    this.x += this.dx;
+    this.y += this.dy;
+
+    this.draw();
+  };
+}
+
+let rectangleArray = [];
+
+for (let i = 0; i < 100; i++) {
+  const wx = Math.random() * (75 - 20) + 20;
+  const hy = Math.random() * (75 - 20) + 20;
+  const x = Math.random() * (window.innerWidth - wx * 2) + wx;
+  const y = Math.random() * (window.innerHeight - hy * 2) + hy;
+  const dx = (Math.random() - 0.5) * 8;
+  const dy = (Math.random() - 0.5) * 8;
+  const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+  const color = "#" + randomColor;
+
+  rectangleArray.push(new Rectangle(x, y, wx, hy, dx, dy, color));
 }
 
 const animate = () => {
@@ -95,6 +140,10 @@ const animate = () => {
 
   for (let i = 0; i < circleArray.length; i++) {
     circleArray[i].update();
+  }
+
+  for (let i = 0; i < rectangleArray.length; i++) {
+    rectangleArray[i].update();
   }
 };
 
