@@ -14,8 +14,9 @@ let mouse = {
   y: undefined,
 };
 const maxRadius = 40;
-const minRadius = 2;
 const velocity = 3;
+const maxRectangleHeight = 40;
+const maxRectangleWidth = 40;
 let circleArray = [];
 let rectangleArray = [];
 const colorArray = ["#2C3E50", "#E74C3C", "#ECF0F1", "#3498DB", "#2980B9"];
@@ -59,7 +60,7 @@ const colorArray = ["#2C3E50", "#E74C3C", "#ECF0F1", "#3498DB", "#2980B9"];
  * ----------------------------------------------
  */
 // animate arc or circle
-function Circle(x, y, dx, dy, radius, color) {
+function Circle(x, y, dx, dy, radius) {
   this.x = x;
   this.y = y;
   this.dx = dx;
@@ -115,10 +116,8 @@ const initCircle = () => {
     const y = Math.random() * (window.innerHeight - radius * 2) + radius;
     const dx = (Math.random() - 0.5) * velocity;
     const dy = (Math.random() - 0.5) * velocity;
-    const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-    const color = "#" + randomColor;
 
-    circleArray.push(new Circle(x, y, dx, dy, radius, color));
+    circleArray.push(new Circle(x, y, dx, dy, radius));
   }
 };
 
@@ -128,63 +127,69 @@ const initCircle = () => {
  * ----------------------------------------------
  */
 
-function Rectangle(x, y, wx, hy, dx, dy, color) {
+function Rectangle(x, y, width, height, dx, dy) {
   this.x = x;
   this.y = y;
-  this.wx = wx;
-  this.hy = hy;
+  this.width = width;
+  this.height = height;
   this.dx = dx;
   this.dy = dy;
-  this.color = color;
+  this.minRectangleWidth = width;
+  this.minRectangleHeight = height;
+  this.color = colorArray[Math.floor(Math.random() * colorArray.length)];
 
   this.draw = function () {
     ctx.beginPath();
-
-    ctx.fillStyle = color;
-    ctx.fillRect(this.x, this.y, this.wx, this.hy);
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.x, this.y, this.width, this.height);
   };
 
   this.update = function () {
-    if (this.x + this.wx > innerWidth || this.x < 0) {
+    if (this.x + this.width > innerWidth || this.x < 0) {
       this.dx = -this.dx;
     }
 
-    if (this.y + this.hy > innerHeight || this.y < 0) {
+    if (this.y + this.height > innerHeight || this.y < 0) {
       this.dy = -this.dy;
     }
 
     this.x += this.dx;
     this.y += this.dy;
 
-    // //interactivity
-    // if (
-    //   mouse.x - this.x < 50 &&
-    //   mouse.x - this.x > -50 &&
-    //   mouse.y - this.y < 50 &&
-    //   mouse.y - this.y > -50
-    // ) {
-    //   this.wx++;
-    //   this.hy++;
-    // } else {
-    //   this.wx--;
-    //   this.hy--;
-    // }
+    //interactivity
+    // if rectangle is moused over increase in size, decrease if mouse away
+    if (
+      mouse.x - this.x < 50 &&
+      mouse.x - this.x > -50 &&
+      mouse.y - this.y < 50 &&
+      mouse.y - this.y > -50
+    ) {
+      if (this.height < maxRectangleHeight && this.width < maxRectangleWidth) {
+        this.width++;
+        this.height++;
+      }
+    } else if (
+      this.width > this.minRectangleWidth &&
+      this.height > this.minRectangleHeight
+    ) {
+      this.width--;
+      this.height--;
+    }
     this.draw();
   };
 }
 
 const initRectangle = () => {
-  for (let i = 0; i < 100; i++) {
-    const wx = Math.random() * (75 - 20) + 20;
-    const hy = Math.random() * (75 - 20) + 20;
-    const x = Math.random() * (window.innerWidth - wx * 2) + wx;
-    const y = Math.random() * (window.innerHeight - hy * 2) + hy;
+  rectangleArray = [];
+
+  for (let i = 0; i < 800; i++) {
+    const width = Math.random() * (5 - 2) + 2;
+    const height = Math.random() * (5 - 2) + 2;
+    const x = Math.random() * (window.innerWidth - width * 2) + width;
+    const y = Math.random() * (window.innerHeight - height * 2) + height;
     const dx = (Math.random() - 0.5) * velocity;
     const dy = (Math.random() - 0.5) * velocity;
-    const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-    const color = "#" + randomColor;
-
-    rectangleArray.push(new Rectangle(x, y, wx, hy, dx, dy, color));
+    rectangleArray.push(new Rectangle(x, y, width, height, dx, dy));
   }
 };
 
@@ -192,16 +197,19 @@ const animate = () => {
   requestAnimationFrame(animate);
   ctx.clearRect(0, 0, innerWidth, innerHeight);
 
+  // circle animation
   for (let i = 0; i < circleArray.length; i++) {
     circleArray[i].update();
   }
 
+  // rectangle animation
   //   for (let i = 0; i < rectangleArray.length; i++) {
   //     rectangleArray[i].update();
   //   }
 };
 
 initCircle();
+initRectangle();
 animate();
 
 /**
